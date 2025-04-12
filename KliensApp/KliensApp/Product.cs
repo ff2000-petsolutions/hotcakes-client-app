@@ -11,6 +11,5 @@ namespace KliensApp
         public string ProductName { get; set; }
         public string Sku { get; set; }
         public string Bvin { get; set; }
-        public decimal ListPrice { get; set; }
     }
 }
