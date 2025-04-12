@@ -17,6 +17,8 @@ namespace KliensApp
         private readonly string apiUrl;
         private readonly Api proxy;
         private List<ProductDTO> currentProducts;
+        private List<ProductTypeDTO> productTypes;
+        private ComboBox productTypeComboBox;
 
         public Form1()
         {
@@ -25,16 +27,18 @@ namespace KliensApp
             apiUrl = ConfigurationManager.AppSettings["apiurl"];
             proxy = new Api(apiUrl, apiKey);
             InitializeComboBox();
+            InitializeProductTypeComboBox();
         }
 
         private void InitializeComboBox()
         {
             var properties = typeof(ProductDTO).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanWrite && p.CanRead && p.Name != "Bvin" && p.Name != "StoreId")
+                .Where(p => p.CanWrite && p.CanRead && p.Name != "Bvin" && p.Name != "StoreId" && p.Name != "ProductTypeId")
                 .Select(p => p.Name)
                 .OrderBy(name => name)
                 .ToList();
 
+            properties.Add("ProductType");
             comboBoxProperties.Items.Clear();
             comboBoxProperties.Items.AddRange(properties.ToArray());
             if (properties.Contains("SitePrice"))
@@ -43,9 +47,25 @@ namespace KliensApp
                 comboBoxProperties.SelectedIndex = 0;
         }
 
+        private void InitializeProductTypeComboBox()
+        {
+            if (productTypeComboBox == null)
+            {
+                productTypeComboBox = new ComboBox
+                {
+                    Location = new System.Drawing.Point(textBox1.Location.X, textBox1.Location.Y),
+                    Width = textBox1.Width,
+                    DropDownStyle = ComboBoxStyle.DropDownList,
+                    Visible = false
+                };
+                this.Controls.Add(productTypeComboBox);
+            }
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             LoadProducts();
+            LoadProductTypes();
         }
 
         private async Task LoadProducts()
@@ -67,6 +87,24 @@ namespace KliensApp
             }
         }
 
+        private async Task LoadProductTypes()
+        {
+            try
+            {
+                var types = await Task.Run(() => proxy.ProductTypesFindAll());
+                if (types.Errors.Any())
+                {
+                    MessageBox.Show($"API hiba a terméktípusok lekérésekor: {string.Join(", ", types.Errors.Select(e => e.Description))}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                productTypes = types.Content;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Hiba történt a terméktípusok lekérésekor: {ex.Message}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void DisplayProducts(List<ProductDTO> products)
         {
             dataGridView1.Rows.Clear();
@@ -79,7 +117,7 @@ namespace KliensApp
             string selectedProperty = comboBoxProperties.SelectedItem?.ToString();
             if (!string.IsNullOrEmpty(selectedProperty))
             {
-                dataGridView1.Columns.Add(selectedProperty, selectedProperty);
+                dataGridView1.Columns.Add(selectedProperty, selectedProperty == "ProductType" ? "Terméktípus" : selectedProperty);
             }
 
             foreach (var product in products)
@@ -87,9 +125,24 @@ namespace KliensApp
                 var row = new List<object> { product.ProductName, product.Sku, product.Bvin };
                 if (!string.IsNullOrEmpty(selectedProperty))
                 {
-                    var propertyInfo = typeof(ProductDTO).GetProperty(selectedProperty);
-                    var value = propertyInfo?.GetValue(product)?.ToString() ?? "";
-                    row.Add(value);
+                    if (selectedProperty == "ProductType" && productTypes != null)
+                    {
+                        var type = productTypes.FirstOrDefault(t => t.Bvin == product.ProductTypeId);
+                        row.Add(type?.ProductTypeName ?? product.ProductTypeId);
+                    }
+                    else
+                    {
+                        var propertyInfo = typeof(ProductDTO).GetProperty(selectedProperty);
+                        var value = propertyInfo?.GetValue(product);
+                        if (value is decimal decValue)
+                        {
+                            row.Add(decValue.ToString("F0"));
+                        }
+                        else
+                        {
+                            row.Add(value?.ToString() ?? "");
+                        }
+                    }
                 }
                 dataGridView1.Rows.Add(row.ToArray());
             }
@@ -111,10 +164,10 @@ namespace KliensApp
                 return;
             }
 
-            string newValueText = textBox1.Text;
+            string newValueText = selectedProperty == "ProductType" ? productTypeComboBox.SelectedItem?.ToString() : textBox1.Text;
             if (string.IsNullOrWhiteSpace(newValueText))
             {
-                MessageBox.Show("Kérem adjon meg egy értéket!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Kérem adjon meg vagy válasszon ki egy értéket!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -127,32 +180,10 @@ namespace KliensApp
             try
             {
                 int updatedCount = 0;
-                var propertyInfo = typeof(ProductDTO).GetProperty(selectedProperty);
-                if (propertyInfo == null)
-                {
-                    MessageBox.Show($"Érvénytelen tulajdonság: {selectedProperty}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
 
-                object newValue;
-                try
-                {
-                    newValue = ConvertValue(newValueText, propertyInfo.PropertyType);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Érvénytelen érték a(z) {selectedProperty} tulajdonsághoz: {ex.Message}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                var processedRows = new HashSet<int>();
                 foreach (DataGridViewCell cell in dataGridView1.SelectedCells)
                 {
                     int rowIndex = cell.RowIndex;
-                    if (processedRows.Contains(rowIndex))
-                        continue;
-
-                    processedRows.Add(rowIndex);
                     string bvin = dataGridView1.Rows[rowIndex].Cells["Bvin"].Value?.ToString();
                     if (string.IsNullOrEmpty(bvin))
                     {
@@ -175,7 +206,39 @@ namespace KliensApp
                     }
 
                     var product = productResponse.Content;
-                    propertyInfo.SetValue(product, newValue);
+
+                    if (selectedProperty == "ProductType")
+                    {
+                        var selectedType = productTypes?.FirstOrDefault(t => t.ProductTypeName == newValueText);
+                        if (selectedType == null)
+                        {
+                            MessageBox.Show("Érvénytelen terméktípus!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            continue;
+                        }
+                        product.ProductTypeId = selectedType.Bvin;
+                    }
+                    else
+                    {
+                        var propertyInfo = typeof(ProductDTO).GetProperty(selectedProperty);
+                        if (propertyInfo == null)
+                        {
+                            MessageBox.Show($"Érvénytelen tulajdonság: {selectedProperty}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            continue;
+                        }
+
+                        object newValue;
+                        try
+                        {
+                            newValue = ConvertValue(newValueText, propertyInfo.PropertyType);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Érvénytelen érték a(z) {selectedProperty} tulajdonsághoz: {ex.Message}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            continue;
+                        }
+
+                        propertyInfo.SetValue(product, newValue);
+                    }
 
                     var updateResponse = await Task.Run(() => proxy.ProductsUpdate(product));
                     if (updateResponse == null || updateResponse.Content == null)
@@ -193,7 +256,19 @@ namespace KliensApp
 
                     if (dataGridView1.Columns.Contains(selectedProperty))
                     {
-                        dataGridView1.Rows[rowIndex].Cells[selectedProperty].Value = newValue?.ToString();
+                        if (selectedProperty == "ProductType")
+                        {
+                            var type = productTypes?.FirstOrDefault(t => t.Bvin == product.ProductTypeId);
+                            dataGridView1.Rows[rowIndex].Cells[selectedProperty].Value = type?.ProductTypeName ?? product.ProductTypeId;
+                        }
+                        else if (product.GetType().GetProperty(selectedProperty)?.GetValue(product) is decimal decValue)
+                        {
+                            dataGridView1.Rows[rowIndex].Cells[selectedProperty].Value = decValue.ToString("F0");
+                        }
+                        else
+                        {
+                            dataGridView1.Rows[rowIndex].Cells[selectedProperty].Value = product.GetType().GetProperty(selectedProperty)?.GetValue(product)?.ToString();
+                        }
                     }
                     updatedCount++;
                 }
@@ -230,6 +305,22 @@ namespace KliensApp
 
         private void comboBoxProperties_SelectedIndexChanged_1(object sender, EventArgs e)
         {
+            string selectedProperty = comboBoxProperties.SelectedItem?.ToString();
+            textBox1.Visible = selectedProperty != "ProductType";
+
+            if (productTypeComboBox != null)
+            {
+                productTypeComboBox.Visible = selectedProperty == "ProductType";
+
+                if (selectedProperty == "ProductType" && productTypes != null)
+                {
+                    productTypeComboBox.Items.Clear();
+                    productTypeComboBox.Items.AddRange(productTypes.Select(t => t.ProductTypeName).ToArray());
+                    if (productTypeComboBox.Items.Count > 0)
+                        productTypeComboBox.SelectedIndex = 0;
+                }
+            }
+
             if (currentProducts != null && comboBoxProperties.SelectedItem != null)
             {
                 DisplayProducts(currentProducts);
