@@ -1,6 +1,7 @@
 using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Windows.Forms;
+
 namespace Kliens_App
 {
     public partial class Form1 : Form
@@ -9,15 +10,24 @@ namespace Kliens_App
         {
             InitializeComponent();
         }
+
         private static string apiKey;
         private static string apiUrl;
+
         private void Form1_Load(object sender, EventArgs e)
         {
-            apiKey= ConfigurationManager.AppSettings["apikulcs"];
+            apiKey = ConfigurationManager.AppSettings["apikulcs"];
             apiUrl = ConfigurationManager.AppSettings["apiurl"];
+
+            LoadProducts();
         }
 
         private async void btnGetProducts_Click(object sender, EventArgs e)
+        {
+            await LoadProducts();
+        }
+
+        private async Task LoadProducts()
         {
             try
             {
@@ -64,6 +74,7 @@ namespace Kliens_App
                 return products;
             }
         }
+
         public class Product
         {
             public string ProductName { get; set; }
