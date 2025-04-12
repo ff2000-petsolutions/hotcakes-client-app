@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kliens_App
+namespace KliensApp
 {
     public class Product
     {
         public string ProductName { get; set; }
         public string Sku { get; set; }
         public string Bvin { get; set; }
+        public decimal ListPrice { get; set; }
     }
 }
