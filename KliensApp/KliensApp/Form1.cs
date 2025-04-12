@@ -28,12 +28,6 @@ namespace KliensApp
         {
             LoadProducts();
         }
-
-        private async void btnGetProducts_Click(object sender, EventArgs e)
-        {
-            await LoadProducts();
-        }
-
         private async Task LoadProducts()
         {
             try
@@ -68,6 +62,11 @@ namespace KliensApp
             }
 
             dataGridView1.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+        }
+
+        private async void btnGetProducts_Click(object sender, EventArgs e)
+        {
+            await LoadProducts();
         }
     }
 }
