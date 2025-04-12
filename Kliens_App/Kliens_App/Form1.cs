@@ -75,11 +75,5 @@ namespace Kliens_App
             }
         }
 
-        public class Product
-        {
-            public string ProductName { get; set; }
-            public string Sku { get; set; }
-            public string Bvin { get; set; }
-        }
     }
 }
