@@ -1,3 +1,4 @@
+using System.Configuration;
 namespace Kliens_App
 {
     public partial class Form1 : Form
@@ -9,7 +10,8 @@ namespace Kliens_App
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            string apiKey = ConfigurationManager.AppSettings["apikulcs"];
+            MessageBox.Show(apiKey);
         }
     }
 }
