@@ -17,6 +17,7 @@ namespace KliensApp
         private readonly string apiUrl;
         private readonly Api proxy;
         private List<ProductDTO> currentProducts;
+        private readonly ValueConverter converter;
 
         public Form1()
         {
@@ -24,9 +25,9 @@ namespace KliensApp
             apiKey = ConfigurationManager.AppSettings["apikulcs"];
             apiUrl = ConfigurationManager.AppSettings["apiurl"];
             proxy = new Api(apiUrl, apiKey);
+            converter = new ValueConverter();
             InitializeComboBox();
         }
-
         private void InitializeComboBox()
         {
             var properties = typeof(ProductDTO).GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -42,7 +43,6 @@ namespace KliensApp
             else if (properties.Count > 0)
                 comboBoxProperties.SelectedIndex = 0;
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             LoadProducts();
@@ -137,7 +137,7 @@ namespace KliensApp
                 object newValue;
                 try
                 {
-                    newValue = ConvertValue(newValueText, propertyInfo.PropertyType);
+                    newValue = converter.Convert(newValueText, propertyInfo.PropertyType);
                 }
                 catch (Exception ex)
                 {
@@ -213,20 +213,7 @@ namespace KliensApp
             }
         }
 
-        private object ConvertValue(string text, Type targetType)
-        {
-            if (targetType == typeof(string))
-                return text;
-            if (targetType == typeof(decimal))
-                return decimal.Parse(text, System.Globalization.CultureInfo.InvariantCulture);
-            if (targetType == typeof(int))
-                return int.Parse(text);
-            if (targetType == typeof(bool))
-                return bool.Parse(text);
-            if (targetType == typeof(DateTime))
-                return DateTime.Parse(text);
-            throw new ArgumentException($"Nem támogatott típus: {targetType.Name}");
-        }
+
 
         private void comboBoxProperties_SelectedIndexChanged_1(object sender, EventArgs e)
         {
