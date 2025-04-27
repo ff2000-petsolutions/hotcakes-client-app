@@ -23,6 +23,7 @@ namespace KliensApp
         private readonly Dictionary<string, string> propertyTranslations;
         private List<string> displayedColumns;
         private string dynamicColumn;
+        private readonly ValueConverter converter = new ValueConverter();
 
         public Form1()
         {
@@ -523,7 +524,7 @@ namespace KliensApp
                         object newValue;
                         try
                         {
-                            newValue = ConvertValue(newValueText, propertyInfo.PropertyType);
+                            newValue = converter.Convert(newValueText, propertyInfo.PropertyType);
                         }
                         catch (Exception ex)
                         {
@@ -583,20 +584,6 @@ namespace KliensApp
             }
         }
 
-        private object ConvertValue(string text, Type targetType)
-        {
-            if (targetType == typeof(string))
-                return text;
-            if (targetType == typeof(decimal))
-                return decimal.Parse(text, System.Globalization.CultureInfo.InvariantCulture);
-            if (targetType == typeof(int))
-                return int.Parse(text);
-            if (targetType == typeof(bool))
-                return bool.Parse(text);
-            if (targetType == typeof(DateTime))
-                return DateTime.Parse(text);
-            throw new ArgumentException($"Nem támogatott típus: {targetType.Name}");
-        }
 
         private void comboBoxProperties_SelectedIndexChanged_1(object sender, EventArgs e)
         {
