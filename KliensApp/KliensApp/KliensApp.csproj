@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\xunit.runner.visualstudio.2.4.5\build\net462\xunit.runner.visualstudio.props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.4.5\build\net462\xunit.runner.visualstudio.props')" />
+  <Import Project="..\packages\xunit.core.2.4.2\build\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.4.2\build\xunit.core.props')" />
   <Import Project="..\packages\MSTest.TestAdapter.2.2.1\build\net45\MSTest.TestAdapter.props" Condition="Exists('..\packages\MSTest.TestAdapter.2.2.1\build\net45\MSTest.TestAdapter.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -36,23 +38,26 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=5.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.5.1.1\lib\net462\Castle.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Hotcakes.Commerce">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\Hotcakes.Commerce.dll</HintPath>
+      <HintPath>hcrefs\Hotcakes.Commerce.dll</HintPath>
     </Reference>
     <Reference Include="Hotcakes.Commerce.Dnn">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\Hotcakes.Commerce.Dnn.dll</HintPath>
+      <HintPath>hcrefs\Hotcakes.Commerce.Dnn.dll</HintPath>
     </Reference>
     <Reference Include="Hotcakes.CommerceDTO">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\Hotcakes.CommerceDTO.dll</HintPath>
+      <HintPath>hcrefs\Hotcakes.CommerceDTO.dll</HintPath>
     </Reference>
     <Reference Include="Hotcakes.Modules">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\Hotcakes.Modules.dll</HintPath>
+      <HintPath>hcrefs\Hotcakes.Modules.dll</HintPath>
     </Reference>
     <Reference Include="Hotcakes.Payment">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\Hotcakes.Payment.dll</HintPath>
+      <HintPath>hcrefs\Hotcakes.Payment.dll</HintPath>
     </Reference>
     <Reference Include="Hotcakes.Web">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\Hotcakes.Web.dll</HintPath>
+      <HintPath>hcrefs\Hotcakes.Web.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.TestPlatform.AdapterUtilities, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.TestPlatform.AdapterUtilities.16.9.1\lib\netstandard2.0\Microsoft.TestPlatform.AdapterUtilities.dll</HintPath>
@@ -68,8 +73,11 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Moq, Version=4.18.0.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.18.4\lib\net462\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>hcrefs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -158,6 +166,9 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Extensions, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.Extensions.4.3.0\lib\net462\System.Runtime.Extensions.dll</HintPath>
       <Private>True</Private>
@@ -198,23 +209,26 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Helpers">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\System.Web.Helpers.dll</HintPath>
+      <HintPath>hcrefs\System.Web.Helpers.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Mvc">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\System.Web.Mvc.dll</HintPath>
+      <HintPath>hcrefs\System.Web.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Razor">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\System.Web.Razor.dll</HintPath>
+      <HintPath>hcrefs\System.Web.Razor.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\System.Web.WebPages.dll</HintPath>
+      <HintPath>hcrefs\System.Web.WebPages.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages.Deployment">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\System.Web.WebPages.Deployment.dll</HintPath>
+      <HintPath>hcrefs\System.Web.WebPages.Deployment.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.WebPages.Razor">
-      <HintPath>..\..\..\..\..\..\Users\21bal\Downloads\MyIntegration_03.08.00\References\System.Web.WebPages.Razor.dll</HintPath>
+      <HintPath>hcrefs\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -229,6 +243,18 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.abstractions.2.0.3\lib\net35\xunit.abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.4.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.assert.2.4.2\lib\netstandard1.1\xunit.assert.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.4.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.core.2.4.2\lib\net452\xunit.core.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.4.2.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.execution.2.4.2\lib\net452\xunit.execution.desktop.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">
@@ -238,8 +264,13 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Product.cs" />
+    <Compile Include="ProductServices.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IApiClient.cs" />
+    <Compile Include="Services\ProductService.cs" />
+    <Compile Include="Services\RealApiClient.cs" />
+    <Compile Include="Tests\ProductServiceTests.cs" />
     <Compile Include="Tests\ValueConverterTest.cs" />
     <Compile Include="ValueConverter.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -276,6 +307,10 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\MSTest.TestAdapter.2.2.1\build\net45\MSTest.TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSTest.TestAdapter.2.2.1\build\net45\MSTest.TestAdapter.props'))" />
     <Error Condition="!Exists('..\packages\MSTest.TestAdapter.2.2.1\build\net45\MSTest.TestAdapter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSTest.TestAdapter.2.2.1\build\net45\MSTest.TestAdapter.targets'))" />
+    <Error Condition="!Exists('..\packages\xunit.core.2.4.2\build\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.4.2\build\xunit.core.props'))" />
+    <Error Condition="!Exists('..\packages\xunit.core.2.4.2\build\xunit.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.4.2\build\xunit.core.targets'))" />
+    <Error Condition="!Exists('..\packages\xunit.runner.visualstudio.2.4.5\build\net462\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.runner.visualstudio.2.4.5\build\net462\xunit.runner.visualstudio.props'))" />
   </Target>
   <Import Project="..\packages\MSTest.TestAdapter.2.2.1\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.2.2.1\build\net45\MSTest.TestAdapter.targets')" />
+  <Import Project="..\packages\xunit.core.2.4.2\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.4.2\build\xunit.core.targets')" />
 </Project>

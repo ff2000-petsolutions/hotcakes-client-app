@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Reflection;
 using System.Drawing;
+using KliensApp.Services;
 
 namespace KliensApp
 {
@@ -16,7 +17,7 @@ namespace KliensApp
     {
         private readonly string apiKey;
         private readonly string apiUrl;
-        private readonly Api proxy;
+        private readonly Services.ProductService productService;
         private List<ProductDTO> currentProducts;
         private List<ProductTypeDTO> productTypes;
         private ComboBox productTypeComboBox;
@@ -31,7 +32,8 @@ namespace KliensApp
             InitializeComponent();
             apiKey = ConfigurationManager.AppSettings["apikulcs"];
             apiUrl = ConfigurationManager.AppSettings["apiurl"];
-            proxy = new Api(apiUrl, apiKey);
+            IApiClient api = new RealApiClient(apiUrl, apiKey);
+            productService = new Services.ProductService(api);
 
             this.BackColor = Color.FromArgb(30, 30, 30);
             this.ForeColor = Color.White;
@@ -286,13 +288,7 @@ namespace KliensApp
         {
             try
             {
-                var products = await Task.Run(() => proxy.ProductsFindAll());
-                if (products.Errors.Any())
-                {
-                    MessageBox.Show($"API hiba: {string.Join(", ", products.Errors.Select(e => e.Description))}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                currentProducts = products.Content;
+                currentProducts = await productService.GetAllProductsAsync();
                 DisplayProducts(currentProducts);
             }
             catch (Exception ex)
@@ -305,13 +301,7 @@ namespace KliensApp
         {
             try
             {
-                var types = await Task.Run(() => proxy.ProductTypesFindAll());
-                if (types.Errors.Any())
-                {
-                    MessageBox.Show($"API hiba a terméktípusok lekérésekor: {string.Join(", ", types.Errors.Select(e => e.Description))}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                productTypes = types.Content;
+                productTypes = await productService.GetAllProductTypesAsync();
             }
             catch (Exception ex)
             {
@@ -486,21 +476,16 @@ namespace KliensApp
                         continue;
                     }
 
-                    var productResponse = await Task.Run(() => proxy.ProductsFind(bvin));
-                    if (productResponse == null || productResponse.Content == null)
+                    ProductDTO product;
+                    try
                     {
-                        MessageBox.Show($"Nem található a termék (ID: {bvin})!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        product = await productService.GetProductByIdAsync(bvin);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Nem található a termék (ID: {bvin}): {ex.Message}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         continue;
                     }
-
-                    if (productResponse.Errors.Any())
-                    {
-                        MessageBox.Show($"Hiba a termék lekérésekor (ID: {bvin}): {string.Join(", ", productResponse.Errors.Select(x => x.Description))}",
-                            "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        continue;
-                    }
-
-                    var product = productResponse.Content;
 
                     if (selectedProperty == propertyTranslations["ProductType"])
                     {
@@ -535,17 +520,13 @@ namespace KliensApp
                         propertyInfo.SetValue(product, newValue);
                     }
 
-                    var updateResponse = await Task.Run(() => proxy.ProductsUpdate(product));
-                    if (updateResponse == null || updateResponse.Content == null)
+                    try
                     {
-                        MessageBox.Show($"A termék frissítése nem sikerült (ID: {bvin})!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        continue;
+                        await productService.UpdateProductAsync(product);
                     }
-
-                    if (updateResponse.Errors.Any())
+                    catch (Exception ex)
                     {
-                        MessageBox.Show($"Hiba a termék frissítésekor (ID: {bvin}): {string.Join(", ", updateResponse.Errors.Select(x => x.Description))}",
-                            "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"A termék frissítése nem sikerült (ID: {bvin}): {ex.Message}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         continue;
                     }
 
